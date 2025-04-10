@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework.response import Response
 from django.contrib.auth import authenticate,login,logout
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated,Allowany,IsAdminuser
+from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
 from rest_framework.decorators import permission_classes
 
 @api_view(["POST"])
@@ -42,12 +42,22 @@ def Usercreateapi(request):
 @api_view(["GET"])  
 @permission_classes([IsAuthenticated])   #we can replace isauthenticated with allowany and only for admin user
 def protectedView(request):
-    if request.user.is_authenticated:
-        return Response({
-            "massage":"id already authenticated",
-            "username":request.user.username
+    return Response({
+        "massage":"id already authenticated",
+        "username":request.user.username
         })
-    else:
-        return Response({
-            "massage":"Please login"
-        })
+
+
+
+
+
+
+    # if request.user.is_authenticated:
+    #     return Response({
+    #         "massage":"id already authenticated",
+    #         "username":request.user.username
+    #     })
+    # else:
+    #     return Response({
+    #         "massage":"Please login"
+    #     })

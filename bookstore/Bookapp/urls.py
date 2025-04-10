@@ -4,5 +4,5 @@ from .api import *
 urlpatterns = [
     path("create",Usercreateapi),
     # path("login",Userloginapi),
-    path("protect",protectedView)
+    path("protected",protectedView)
 ]
