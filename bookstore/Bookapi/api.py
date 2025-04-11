@@ -66,17 +66,27 @@ class BookModelSerializers(serializers.ModelSerializer):
 #     return Response({
 #         "massage":"Book deleted"
 #     })
-from rest_framework.pagination import PageNumberPagination  
+from rest_framework.pagination import PageNumberPagination,LimitOffsetPagination,CursorPagination
 
 class CustomPagination(PageNumberPagination):
     page_size = 5
+    
+class CustomPagination1(LimitOffsetPagination):
+    limit_query_param = 'limit'
+    offset_query_param = 'offset'
+
+class CustomPagination2(CursorPagination):
+    page_size = 2
+    ordering = "price"   
 
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = BookModel.objects.all()
     serializer_class = BookModelSerializers
     permission_classes = [IsAuthenticated]
-    pagination_class = CustomPagination
+    # pagination_class = CustomPagination
+    pagination_class = CustomPagination2
+
 
 
     def list(self,request):
