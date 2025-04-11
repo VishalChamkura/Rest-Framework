@@ -69,3 +69,68 @@ class BookModelSerializers(serializers.ModelSerializer):
 class BookViewSet(viewsets.ModelViewSet):
     queryset = BookModel.objects.all()
     serializer_class = BookModelSerializers
+
+
+    def list(self,request):
+        if not request.user.is_authenticated:
+            return Response({
+                "massage":"Please Login"
+            })
+        user = request.user
+        books = BookModel.objects.filter(author=user)
+        serializer = self.get_serializer(books,many=True)
+        return Response(serializer.data)
+    
+    def create(self,request):
+        
+        if not request.user.is_authenticated:
+            return Response({
+                "massage":"Please Login"
+            })
+        user = request.user
+        data = request.data
+
+        serializer = self.get_serializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save(author = user)
+
+            return Response({
+                "massage":"Book created"
+            })
+        
+    def update(self,request,pk):
+        if not request.user.is_authenticated:
+            return Response({
+                "massage":"Please Login"
+            })
+        book = BookModel.objects.get(id=pk)
+
+        if book.author == request.user:
+           data = request.data 
+           serializer = self.get_serializer(instance=book,data=data)
+           if serializer.is_valid():
+               serializer.save()
+               return Response({
+                   "massage":"Book Updated"
+               })
+        return Response({
+             "massage":"You are the not owner of this book"
+         })  
+    
+    def destroy(self,request,pk):
+        if not request.user.is_authenticated:
+            return Response({
+                "massage":"Please Login"
+            })
+        book = BookModel.objects.get(id=pk)
+
+        if request.user == book.author:
+            book.delete()
+
+            return Response({
+                "massage":"Book Deleted"
+            })
+        return Response({
+            "massage":"You are the not owner of this book"
+        })
