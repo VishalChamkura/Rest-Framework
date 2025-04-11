@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from .models import BookModel
 from rest_framework.decorators import api_view
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
 
 class BookModelSerializers(serializers.ModelSerializer):
@@ -65,28 +66,36 @@ class BookModelSerializers(serializers.ModelSerializer):
 #     return Response({
 #         "massage":"Book deleted"
 #     })
+from rest_framework.pagination import PageNumberPagination  
+
+class CustomPagination(PageNumberPagination):
+    page_size = 5
+
 
 class BookViewSet(viewsets.ModelViewSet):
     queryset = BookModel.objects.all()
     serializer_class = BookModelSerializers
+    permission_classes = [IsAuthenticated]
+    pagination_class = CustomPagination
 
 
     def list(self,request):
-        if not request.user.is_authenticated:
-            return Response({
-                "massage":"Please Login"
-            })
+        # if not request.user.is_authenticated:
+        #     return Response({
+        #         "massage":"Please Login"
+        #     })
         user = request.user
         books = BookModel.objects.filter(author=user)
-        serializer = self.get_serializer(books,many=True)
-        return Response(serializer.data)
+        page = self.paginate_queryset(books)
+        serializer = self.get_serializer(page,many=True)
+        return self.get_paginated_response(serializer.data)
     
     def create(self,request):
         
-        if not request.user.is_authenticated:
-            return Response({
-                "massage":"Please Login"
-            })
+        # if not request.user.is_authenticated:
+        #     return Response({
+        #         "massage":"Please Login"
+        #     })
         user = request.user
         data = request.data
 
@@ -100,10 +109,10 @@ class BookViewSet(viewsets.ModelViewSet):
             })
         
     def update(self,request,pk):
-        if not request.user.is_authenticated:
-            return Response({
-                "massage":"Please Login"
-            })
+        # if not request.user.is_authenticated:
+        #     return Response({
+        #         "massage":"Please Login"
+        #     })
         book = BookModel.objects.get(id=pk)
 
         if book.author == request.user:
@@ -119,10 +128,10 @@ class BookViewSet(viewsets.ModelViewSet):
          })  
     
     def destroy(self,request,pk):
-        if not request.user.is_authenticated:
-            return Response({
-                "massage":"Please Login"
-            })
+        # if not request.user.is_authenticated:
+        #     return Response({
+        #         "massage":"Please Login"
+        #     })
         book = BookModel.objects.get(id=pk)
 
         if request.user == book.author:
